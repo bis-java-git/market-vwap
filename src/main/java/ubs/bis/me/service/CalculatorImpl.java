@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ubs.bis.me.domain.Instrument;
 import ubs.bis.me.domain.Market;
+import ubs.bis.me.domain.State;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -98,7 +99,7 @@ public class CalculatorImpl implements Calculator {
         );
         return new TwoWayImpl(
                 twoWayMarketPrice.getTwoWayPrice().getInstrument(),
-                twoWayMarketPrice.getTwoWayPrice().getState(),
+                State.INDICATIVE,
                 rounding(bidPrice),
                 twoWayMarketPrice.getTwoWayPrice().getBidAmount(),
                 rounding(offerPrice),
