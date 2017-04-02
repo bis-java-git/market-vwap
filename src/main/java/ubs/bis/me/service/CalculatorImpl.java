@@ -34,8 +34,8 @@ public class CalculatorImpl implements Calculator {
         return bdPrice.doubleValue();
     }
 
-    private Predicate<MarketUpdate> isInstrument(Instrument instrument) {
-        return p -> p.getTwoWayPrice().getInstrument().equals(instrument);
+    private Predicate<MarketUpdate> isInstrument(Instrument instrument, State state) {
+        return p -> p.getTwoWayPrice().getInstrument().equals(instrument) && p.getTwoWayPrice().getState().equals(state);
     }
 
     /**
@@ -43,12 +43,12 @@ public class CalculatorImpl implements Calculator {
      * @param market market
      * @return MarketUpdate
      */
-    private Optional<MarketUpdate> getLatestTwoWayPrice(Market market, Instrument instrument) {
+    private Optional<MarketUpdate> getLatestTwoWayPrice(Market market, Instrument instrument, State state) {
         Optional<ArrayDeque<MarketUpdate>> twoWayMarketPriceList = Optional.ofNullable(marketUpdateMap.get(market));
         MarketUpdate marketUpdate = null;
 
         if (twoWayMarketPriceList.isPresent()) {
-            marketUpdate = twoWayMarketPriceList.get().stream().filter(isInstrument(instrument)).reduce((a, b) -> b).orElse(null);
+            marketUpdate = twoWayMarketPriceList.get().stream().filter(isInstrument(instrument,state)).reduce((a, b) -> b).orElse(null);
         }
         return Optional.ofNullable(marketUpdate);
     }
@@ -80,7 +80,7 @@ public class CalculatorImpl implements Calculator {
         addTwoWayPrice(twoWayMarketPrice);
 
         List<MarketUpdate> marketUpdateList = Arrays.stream(Market.values()).
-                map(m -> getLatestTwoWayPrice(m, twoWayMarketPrice.getTwoWayPrice().getInstrument()))
+                map(m -> getLatestTwoWayPrice(m, twoWayMarketPrice.getTwoWayPrice().getInstrument(),twoWayMarketPrice.getTwoWayPrice().getState()))
                 .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
 
         double bidPrice = marketUpdateList.parallelStream().

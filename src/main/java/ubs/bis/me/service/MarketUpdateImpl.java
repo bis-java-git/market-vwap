@@ -9,8 +9,8 @@ public final class MarketUpdateImpl implements MarketUpdate {
 
     private TwoWayPrice twoWayPrice;
 
-    public MarketUpdateImpl(Market market,
-                            TwoWayPrice twoWayPrice) {
+    MarketUpdateImpl(Market market,
+                     TwoWayPrice twoWayPrice) {
         this.market = market;
         this.twoWayPrice = twoWayPrice;
     }
@@ -27,10 +27,8 @@ public final class MarketUpdateImpl implements MarketUpdate {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("MarketUpdateImpl{");
-        sb.append("market=").append(market);
-        sb.append(", twoWayPrice=").append(twoWayPrice);
-        sb.append('}');
-        return sb.toString();
+        return"MarketUpdateImpl{" + "market=" + market +
+                ", twoWayPrice=" + twoWayPrice +
+                '}';
     }
 }
