@@ -20,11 +20,10 @@ public class CalculatorImpl implements Calculator {
 
     private static final int SCALE = 4;
 
-    private Map<Market, LinkedList<MarketUpdate>> marketUpdateMap = new HashMap<>();
+    private Map<Market, ArrayDeque<MarketUpdate>> marketUpdateMap = new HashMap<>();
 
     /**
      * Assumption is that at least 4 decimal places resolution or scale is required.
-     *
      * @param price VWAP price
      * @return rounded price
      */
@@ -44,24 +43,27 @@ public class CalculatorImpl implements Calculator {
      * @return MarketUpdate
      */
     private Optional<MarketUpdate> getLatestTwoWayPrice(Market market, Instrument instrument) {
-        Optional<LinkedList<MarketUpdate>> twoWayMarketPriceList = Optional.ofNullable(marketUpdateMap.get(market));
-        if (twoWayMarketPriceList.isPresent())
-            return Optional.ofNullable(twoWayMarketPriceList.get().stream().filter(isInstrument(instrument))
-                    .collect(Collectors.toCollection(LinkedList::new)).descendingIterator().next());
-        return Optional.empty();
+        Optional<ArrayDeque<MarketUpdate>> twoWayMarketPriceList = Optional.ofNullable(marketUpdateMap.get(market));
+        MarketUpdate marketUpdate = null;
+
+        if (twoWayMarketPriceList.isPresent()) {
+            marketUpdate = twoWayMarketPriceList.get().stream().filter(isInstrument(instrument)).reduce((a, b) -> b).orElse(null);
+        }
+        return Optional.ofNullable(marketUpdate);
     }
 
     /**
      * Add to the main storage latest TwoWayPrice
-     *
      * @param twoWayMarketPrice twoWayMarketPrice
      */
     private void addTwoWayPrice(MarketUpdate twoWayMarketPrice) {
-        Optional<LinkedList<MarketUpdate>> twoWayMarketPriceList = Optional.ofNullable(marketUpdateMap.get(twoWayMarketPrice.getMarket()));
+        Optional<ArrayDeque<MarketUpdate>> twoWayMarketPriceList = Optional.ofNullable(marketUpdateMap.get(twoWayMarketPrice.getMarket()));
+
         if (!twoWayMarketPriceList.isPresent()) {
-            twoWayMarketPriceList = Optional.of(new LinkedList<>());
+            twoWayMarketPriceList = Optional.of(new ArrayDeque<>());
             marketUpdateMap.put(twoWayMarketPrice.getMarket(), twoWayMarketPriceList.get());
         }
+
         twoWayMarketPriceList.get().add(twoWayMarketPrice);
     }
 
